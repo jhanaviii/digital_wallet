@@ -1,0 +1,830 @@
+
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Digital Wallet System API",
+    "description": "RESTful API for Digital Wallet with Cash Management and Fraud Detection",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1",
+      "description": "Production API Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "username": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          }
+        }
+      },
+      "Wallet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "balance": {
+            "type": "number",
+            "format": "double"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "wallet_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "transaction_type": {
+            "type": "string",
+            "enum": ["deposit", "withdrawal", "transfer_in", "transfer_out"]
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "recipient_wallet_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_flagged": {
+            "type": "boolean",
+            "default": false
+          },
+          "flag_reason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "FraudFlag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "transaction_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
+          "is_resolved": {
+            "type": "boolean",
+            "default": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolved_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "resolved_by": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "description": "Create a new user account with email and password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "full_name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration successful"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        },
+        "tags": ["Authentication"]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login user",
+        "description": "Authenticate a user with email and password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": ["Authentication"]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout user",
+        "description": "Invalidate the current user's session",
+        "responses": {
+          "200": {
+            "description": "Logout successful"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Authentication"]
+      }
+    },
+    "/auth/user": {
+      "get": {
+        "summary": "Get current user",
+        "description": "Retrieve details of the authenticated user",
+        "responses": {
+          "200": {
+            "description": "User details retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Authentication"]
+      }
+    },
+    "/wallet/get": {
+      "get": {
+        "summary": "Get user wallet",
+        "description": "Retrieve the authenticated user's wallet",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "currency",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Currency code (default: USD)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Wallet Operations"]
+      }
+    },
+    "/wallet/deposit": {
+      "post": {
+        "summary": "Deposit funds",
+        "description": "Add funds to a user's wallet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "wallet_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0.01
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": ["wallet_id", "amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deposit successful"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Wallet Operations"]
+      }
+    },
+    "/wallet/withdraw": {
+      "post": {
+        "summary": "Withdraw funds",
+        "description": "Withdraw funds from a user's wallet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "wallet_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0.01
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": ["wallet_id", "amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Withdrawal successful"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Wallet Operations"]
+      }
+    },
+    "/wallet/transfer": {
+      "post": {
+        "summary": "Transfer funds",
+        "description": "Transfer funds to another user's wallet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sender_wallet_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "recipient_username": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0.01
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": ["sender_wallet_id", "recipient_username", "amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer successful"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Recipient not found"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Wallet Operations"]
+      }
+    },
+    "/wallet/transactions": {
+      "get": {
+        "summary": "Get user transactions",
+        "description": "Retrieve transaction history for the authenticated user",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Number of transactions to return"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "in": "query",
+            "name": "wallet_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filter by specific wallet ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transactions retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Wallet Operations"]
+      }
+    },
+    "/admin/flagged-transactions": {
+      "get": {
+        "summary": "Get flagged transactions",
+        "description": "Admin endpoint to view transactions flagged for fraud",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            },
+            "description": "Maximum number of records to return"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Number of records to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flagged transactions retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/admin/total-balances": {
+      "get": {
+        "summary": "Get total balances by currency",
+        "description": "Admin endpoint to view total wallet balances by currency",
+        "responses": {
+          "200": {
+            "description": "Total balances retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/admin/top-users": {
+      "get": {
+        "summary": "Get top users by balance or transaction volume",
+        "description": "Admin endpoint to view top users by balance or transaction volume",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "metric",
+            "schema": {
+              "type": "string",
+              "enum": ["balance", "volume"],
+              "default": "balance"
+            },
+            "description": "Metric to rank users by"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Number of users to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top users retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/admin/transaction-volume": {
+      "get": {
+        "summary": "Get transaction volume by day",
+        "description": "Admin endpoint to view transaction volume trends",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "schema": {
+              "type": "integer",
+              "default": 30
+            },
+            "description": "Number of days to include in the report"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction volume data retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/admin/resolve-flag": {
+      "post": {
+        "summary": "Resolve fraud flag",
+        "description": "Admin endpoint to mark a fraud flag as resolved",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "flag_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "resolution_note": {
+                    "type": "string"
+                  }
+                },
+                "required": ["flag_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Flag resolved"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/report/transaction-history": {
+      "get": {
+        "summary": "Get transaction history report",
+        "description": "Generate a detailed transaction history report",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "start_date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": true,
+            "description": "Start date for the report (YYYY-MM-DD)"
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": true,
+            "description": "End date for the report (YYYY-MM-DD)"
+          },
+          {
+            "in": "query",
+            "name": "transaction_type",
+            "schema": {
+              "type": "string",
+              "enum": ["deposit", "withdrawal", "transfer_in", "transfer_out"]
+            },
+            "description": "Filter by transaction type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction history report generated"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Report Operations"]
+      }
+    },
+    "/report/wallet-summary": {
+      "get": {
+        "summary": "Get wallet summary",
+        "description": "Generate a summary report for a specific wallet",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "wallet_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "description": "Wallet ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet summary generated"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Wallet not found"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Report Operations"]
+      }
+    },
+    "/scheduled-jobs/daily-fraud-scan": {
+      "post": {
+        "summary": "Run daily fraud scan",
+        "description": "Scheduled job to scan for suspicious transaction patterns",
+        "responses": {
+          "200": {
+            "description": "Scan completed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "tags": ["Scheduled Jobs"]
+      }
+    },
+    "/docs": {
+      "get": {
+        "summary": "API Documentation",
+        "description": "Returns API documentation in Swagger UI or JSON format",
+        "responses": {
+          "200": {
+            "description": "API documentation returned"
+          }
+        },
+        "tags": ["Documentation"]
+      }
+    }
+  }
+}

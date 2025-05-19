@@ -1,0 +1,32 @@
+
+project_id = "wqjwrlkkahsowicaeorr"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+
+[db]
+port = 54322
+
+[studio]
+port = 54323
+
+[functions]
+[functions.auth]
+verify_jwt = false
+
+[functions.wallet]
+verify_jwt = true
+
+[functions.admin]
+verify_jwt = true
+
+[functions.report]
+verify_jwt = true
+
+[functions.scheduled-jobs]
+verify_jwt = false
+
+[functions.docs]
+verify_jwt = false

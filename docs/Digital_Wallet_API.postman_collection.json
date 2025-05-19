@@ -1,0 +1,696 @@
+
+{
+  "info": {
+    "_postman_id": "b7e234d8-1234-5678-9101-e1e2e3e4e5e6",
+    "name": "Digital Wallet API",
+    "description": "API collection for Digital Wallet System with Cash Management and Fraud Detection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securepassword\",\n  \"username\": \"testuser\",\n  \"full_name\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/auth/register",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securepassword\"\n}"
+            },
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/auth/login",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login and get JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/auth/user",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "auth",
+                "user"
+              ]
+            },
+            "description": "Get current user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/auth/logout",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Logout current user"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "Wallet Operations",
+      "item": [
+        {
+          "name": "Get Wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/wallet/get?currency=USD",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "wallet",
+                "get"
+              ],
+              "query": [
+                {
+                  "key": "currency",
+                  "value": "USD"
+                }
+              ]
+            },
+            "description": "Get user wallet"
+          },
+          "response": []
+        },
+        {
+          "name": "Deposit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wallet_id\": \"{{wallet_id}}\",\n  \"amount\": 100.00,\n  \"description\": \"Initial deposit\"\n}"
+            },
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/wallet/deposit",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "wallet",
+                "deposit"
+              ]
+            },
+            "description": "Deposit funds to wallet"
+          },
+          "response": []
+        },
+        {
+          "name": "Withdraw",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wallet_id\": \"{{wallet_id}}\",\n  \"amount\": 25.00,\n  \"description\": \"ATM withdrawal\"\n}"
+            },
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/wallet/withdraw",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "wallet",
+                "withdraw"
+              ]
+            },
+            "description": "Withdraw funds from wallet"
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender_wallet_id\": \"{{wallet_id}}\",\n  \"recipient_username\": \"anotheruser\",\n  \"amount\": 50.00,\n  \"description\": \"Payment for services\"\n}"
+            },
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/wallet/transfer",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "wallet",
+                "transfer"
+              ]
+            },
+            "description": "Transfer funds to another user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/wallet/transactions?limit=10&offset=0",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "wallet",
+                "transactions"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Get transaction history"
+          },
+          "response": []
+        }
+      ],
+      "description": "Wallet operation endpoints"
+    },
+    {
+      "name": "Admin Operations",
+      "item": [
+        {
+          "name": "Get Flagged Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/admin/flagged-transactions?limit=50&offset=0",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "admin",
+                "flagged-transactions"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Get transactions flagged for fraud"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Total Balances",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/admin/total-balances",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "admin",
+                "total-balances"
+              ]
+            },
+            "description": "Get total balances by currency"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Top Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/admin/top-users?metric=balance&limit=10",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "admin",
+                "top-users"
+              ],
+              "query": [
+                {
+                  "key": "metric",
+                  "value": "balance"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get top users by balance or transaction volume"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction Volume",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/admin/transaction-volume?days=30",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "admin",
+                "transaction-volume"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
+            },
+            "description": "Get transaction volume data by day"
+          },
+          "response": []
+        },
+        {
+          "name": "Resolve Flag",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flag_id\": \"{{flag_id}}\",\n  \"resolution_note\": \"Verified with customer - legitimate transaction\"\n}"
+            },
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/admin/resolve-flag",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "admin",
+                "resolve-flag"
+              ]
+            },
+            "description": "Mark a fraud flag as resolved"
+          },
+          "response": []
+        }
+      ],
+      "description": "Admin operation endpoints"
+    },
+    {
+      "name": "Report Operations",
+      "item": [
+        {
+          "name": "Transaction History Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/report/transaction-history?start_date=2023-01-01&end_date=2023-01-31",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "report",
+                "transaction-history"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2023-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2023-01-31"
+                }
+              ]
+            },
+            "description": "Get transaction history report"
+          },
+          "response": []
+        },
+        {
+          "name": "Wallet Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/report/wallet-summary?wallet_id={{wallet_id}}",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "report",
+                "wallet-summary"
+              ],
+              "query": [
+                {
+                  "key": "wallet_id",
+                  "value": "{{wallet_id}}"
+                }
+              ]
+            },
+            "description": "Get wallet activity summary"
+          },
+          "response": []
+        }
+      ],
+      "description": "Report generation endpoints"
+    },
+    {
+      "name": "Documentation",
+      "item": [
+        {
+          "name": "Get API Documentation (HTML)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/docs",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "docs"
+              ]
+            },
+            "description": "Get API documentation in Swagger UI"
+          },
+          "response": []
+        },
+        {
+          "name": "Get API Documentation (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "https://wqjwrlkkahsowicaeorr.supabase.co/functions/v1/docs",
+              "protocol": "https",
+              "host": [
+                "wqjwrlkkahsowicaeorr",
+                "supabase",
+                "co"
+              ],
+              "path": [
+                "functions",
+                "v1",
+                "docs"
+              ]
+            },
+            "description": "Get API documentation in JSON format"
+          },
+          "response": []
+        }
+      ],
+      "description": "API documentation endpoints"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.response.code === 200 && pm.response.json().session && pm.response.json().session.access_token) {",
+          "    pm.environment.set('jwt_token', pm.response.json().session.access_token);",
+          "    console.log('JWT token saved to environment');",
+          "}",
+          "",
+          "if (pm.response.code === 200 && pm.response.json().wallet && pm.response.json().wallet.id) {",
+          "    pm.environment.set('wallet_id', pm.response.json().wallet.id);",
+          "    console.log('Wallet ID saved to environment');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "wallet_id",
+      "value": ""
+    },
+    {
+      "key": "flag_id",
+      "value": ""
+    }
+  ]
+}
