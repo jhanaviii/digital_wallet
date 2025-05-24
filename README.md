@@ -1,7 +1,7 @@
 
 # Digital Wallet System with Cash Management and Fraud Detection
 
-A comprehensive digital wallet backend system with advanced features including transaction processing, cash management, and fraud detection.
+A comprehensive digital wallet backend system with advanced features including transaction processing, cash management, and fraud detection.(for assignment)
 
 ## 🚀 Features
 
